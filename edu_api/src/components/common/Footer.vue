@@ -2,7 +2,14 @@
     <div class="footer">
         <ul>
             <li v-for="(nav,index) in foot_list" :key="index">
-                <span v-if="nav.position === 2">{{nav.title}}</span>
+                <span v-if="nav.position === 2">
+                    <span v-if="nav.is_site">
+                                    <a :href="nav.link">{{ nav.title }}</a>
+                    </span>
+                    <span v-else>
+                        <router-link :to="nav.link">{{ nav.title }}</router-link>
+                    </span>
+                </span>
             </li>
         </ul>
     </div>

@@ -11,7 +11,8 @@ import "element-ui/lib/theme-chalk/index.css"
 import "../static/css/global.css"
 import settings from "./settings";
 
-
+// 导入极验的验证码
+import "../static/js/gt"
 // 配置axios（相当于json ajax）
 import axios from "axios"
 

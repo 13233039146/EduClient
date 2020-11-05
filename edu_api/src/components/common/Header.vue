@@ -9,21 +9,42 @@
                     </div>
                     <ul class="nav full-left">
                         <li v-for="(nav, index) in head_list" :key="index">
-                            <span v-if="nav.position === 1">{{nav.title}}</span>
+                            <span v-if="nav.position === 1">
+                                <span v-if="nav.is_site">
+                                    <a :href="nav.link">{{ nav.title }}</a>
+                              </span>
+                            <span v-else>
+                                <router-link :to="nav.link">{{ nav.title }}</router-link>
+                            </span>
+                            </span>
+
                         </li>
 
                     </ul>
-                    <div class="login-bar full-right">
+                    <div class="login-bar full-right" v-if="is_login">
                         <div class="shop-cart full-left">
                             <img src="/static/image/cart.svg" alt="">
                             <span><router-link to="/cart">购物车</router-link></span>
                         </div>
-                        <div class="login-box full-left">
-                            <span>登录</span>
+                        <div class="login-box full-left" >
+                            <span><router-link to="/">我的订单</router-link></span>
+                            &nbsp;|&nbsp;
+                            <span @click="logout()">退出</span>
+                        </div>
+                    </div>
+
+                    <div class="login-bar full-right" v-else>
+                        <div class="shop-cart full-left">
+                            <img src="/static/image/cart.svg" alt="">
+                            <span><router-link to="/cart">购物车</router-link></span>
+                        </div>
+                        <div class="login-box full-left" >
+                            <span><router-link to="/user">登录</router-link></span>
                             &nbsp;|&nbsp;
                             <span>注册</span>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -35,7 +56,8 @@ export default {
     name: "Header",
     data() {
         return {
-            head_list: []
+            head_list: [],
+            is_login : false,
         }
     },
     methods: {
@@ -45,9 +67,17 @@ export default {
                 this.head_list = response.data;
             })
         },
+        get_login_status(){
+            this.is_login = !!sessionStorage.token;
+        },
+        logout(){
+            this.is_login = false;
+            sessionStorage.removeItem("token");
+        }
     },
     created() {
         this.get_headers();
+        this.get_login_status();
     }
 }
 </script>
@@ -92,7 +122,7 @@ export default {
     height: 80px;
     line-height: 80px;
     margin-right: 30px;
-    font-size: 16px;
+    font-size: 15px;
     color: #4a4a4a;
     cursor: pointer;
 }
