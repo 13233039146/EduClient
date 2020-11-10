@@ -12,21 +12,22 @@
                             <span v-if="nav.position === 1">
                                 <span v-if="nav.is_site">
                                     <a :href="nav.link">{{ nav.title }}</a>
-                              </span>
+                                </span>
+                                <span v-else>
+                                    <router-link :to="nav.link">{{nav.title}}</router-link>
+                                </span>
                             <span v-else>
                                 <router-link :to="nav.link">{{ nav.title }}</router-link>
                             </span>
                             </span>
-
                         </li>
-
                     </ul>
                     <div class="login-bar full-right" v-if="is_login">
                         <div class="shop-cart full-left">
                             <img src="/static/image/cart.svg" alt="">
                             <span><router-link to="/cart">购物车</router-link></span>
                         </div>
-                        <div class="login-box full-left" >
+                        <div class="login-box full-left">
                             <span><router-link to="/">我的订单</router-link></span>
                             &nbsp;|&nbsp;
                             <span @click="logout()">退出</span>
@@ -38,10 +39,10 @@
                             <img src="/static/image/cart.svg" alt="">
                             <span><router-link to="/cart">购物车</router-link></span>
                         </div>
-                        <div class="login-box full-left" >
+                        <div class="login-box full-left">
                             <span><router-link to="/user">登录</router-link></span>
                             &nbsp;|&nbsp;
-                            <span>注册</span>
+                            <span><router-link to="/regist">注册</router-link></span>
                         </div>
                     </div>
 
@@ -57,20 +58,24 @@ export default {
     data() {
         return {
             head_list: [],
-            is_login : false,
+            is_login: false,
         }
     },
     methods: {
         get_headers() {
-            this.$axios.get(this.$settings.HOST + 'index/nav/').then(response=>{
+            this.$axios.get(this.$settings.HOST + 'index/nav/').then(response => {
                 console.log(response.data);
                 this.head_list = response.data;
             })
         },
-        get_login_status(){
-            this.is_login = !!sessionStorage.token;
+        get_login_status() {
+            if (sessionStorage.token) {
+                this.is_login = true;
+            } else {
+                this.is_login = false;
+            }
         },
-        logout(){
+        logout() {
             this.is_login = false;
             sessionStorage.removeItem("token");
         }

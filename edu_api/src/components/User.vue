@@ -8,10 +8,10 @@
             </div>
             <div class="login_box">
                 <div class="title">
-                    <span>密码登录</span>
-                    <span>短信登录</span>
+                    <span @click="login_u" id="log1">密码登录</span>
+                    <span @click="login_m" id="log2">短信登录</span>
                 </div>
-                <div class="inp" v-if="">
+                <div class="inp" v-if="login_flag">
                     <input type="text" placeholder="用户名 / 手机号码 / 邮箱" class="user"
                            v-model="username">
                     <input type="password" name="" class="pwd" placeholder="密码"
@@ -25,17 +25,17 @@
                         <p>忘记密码</p>
                     </div>
                     <button class="login_btn btn btn-primary" @click="get_code()">登录</button>
-                    <p class="go_login">没有账号
-                        <router-link to="/user/register/">立即注册</router-link>
+                    <p class="go_login">没有账号?
+                        <router-link to="/regist"><span>立即注册</span></router-link>
                     </p>
                 </div>
-                <div class="inp" v-show="">
-                    <input type="text" placeholder="手机号码" class="user">
-                    <input type="text" class="pwd" placeholder="短信验证码">
-                    <button id="get_code" class="btn btn-primary">获取验证码</button>
-                    <button class="login_btn">登录</button>
-                    <span class="go_login">没有账号
-                    <router-link to="/user/register/">立即注册</router-link>
+                <div class="inp" v-else>
+                    <input type="text" placeholder="手机号码" class="user" @blur="check_phone" v-model="phone">
+                    <input type="text" class="pwd" placeholder="短信验证码" v-model="msg_code">
+                    <button id="get_code" class="btn btn-primary" @click="getlogin" :disabled="disabled">{{ msg_text }}</button>
+                    <button class="login_btn" @click="commit_message">登录</button>
+                    <span class="go_login">没有账号?
+                    <router-link to="/regist"><span>立即注册</span></router-link>
                 </span>
                 </div>
             </div>
@@ -47,14 +47,134 @@
 <script>
 export default {
     name: "User",
+
     data() {
         return {
+            msg_code : '', //短信验证码
+            phone:'', // 手机号
+            is_valide : false, //检验手机号是否符
+            login_flag: true, // 密码登录还是手机短信登录
             username: '',
             password: '',
-            flag: false,
+            flag: false,    //记住密码的标识
+            totalCount: 0,
+            disabled: false,  //验证码可点击
+            interval: undefined,  // 计时器
         }
     },
+
+    // 计算属性,倒计时
+    computed: {
+        msg_text() {
+            return this.totalCount !== 0 ? `${this.totalCount}秒再次获取` : "获取验证码"
+        }
+
+    },
     methods: {
+
+        // 手机短信登录方式
+        commit_message(){
+            console.log(this.msg_code)
+            // 如果验证码没输入
+            if(!this.msg_code){
+                this.$message({
+                    type:'error',
+                    message: '请输入验证码!',
+                    duration:1000
+                })
+                return
+            }
+            this.$axios({
+                url: this.$settings.HOST + 'user/commit_msg/',
+                method : 'post',
+                data:{
+                    phone: this.phone,
+                    code: this.msg_code,
+                }
+            }).then(res=>{
+                sessionStorage.token = res.data.token;
+                this.$message({
+                    message: '恭喜您,登录成功!',
+                    type: 'success',
+                    duration: 1500,
+                })
+                this.$router.push('/')
+            }).catch(error=>{
+                this.$message.error(error.response.data);
+            })
+        },
+        //计时器
+        getlogin() {
+            // 按钮60秒倒计时
+            if (!this.is_valide) {
+                this.$message({
+                    type: 'warning',
+                    message: '请先输入正确的手机号!',
+                    duration: 1000,
+                })
+                return
+            }
+            this.disabled = true
+            this.totalCount = 60
+            this.send_code();   //60秒过倒计时过后才能调用的事件
+            this.interval = setInterval(() => {
+                this.totalCount--;
+                if (this.totalCount === 0) {
+                    clearInterval(this.interval)
+                    this.disabled = false
+                }
+            }, 1000);
+        },
+
+        //给手机发送验证码
+        send_code() {
+            this.$axios({
+                url: this.$settings.HOST + 'user/send_code/',
+                method: 'get',
+                params: {
+                    phone: this.phone
+                }
+            }).then(res => {
+                this.$message({
+                    type: 'success',
+                    message: '验证码已发送,10分钟内有效哦!'
+                })
+            }).catch(error => {
+                this.$message({
+                    type: 'error',
+                    message: '获取验证码失败'
+                })
+            })
+        },
+
+        check_phone(){
+            this.$axios({
+                url: this.$settings.HOST + "user/login_check_phone/",
+                method: "get",
+                params: {
+                    phone: this.phone,
+                }
+            }).catch(error => {
+                this.$message.error(error.response.data)
+                this.is_valide = false;
+            })
+            this.is_valide = true
+        },
+        login_u(){
+            this.login_flag = true;
+            document.getElementById('log2').style.color='#9b9b9b';
+            document.getElementById('log2').style.borderBottom='0px';
+            document.getElementById('log1').style.color='#4a4a4a';
+            document.getElementById('log1').style.borderBottom='2px solid #84cc39';
+
+        },
+        login_m(){
+            this.login_flag = false;
+            document.getElementById('log1').style.color='#9b9b9b';
+            document.getElementById('log1').style.borderBottom='0px';
+            document.getElementById('log2').style.color='#4a4a4a';
+            document.getElementById('log2').style.borderBottom='2px solid #84cc39';
+        },
         check_pwd() {
             // console.log(this.password.length)
             if (this.password.length < 6 || this.password.length > 16) {
@@ -193,8 +313,6 @@ export default {
             this.password = '123456';
             this.flag = true;
 
-
-            // this.password =
         }
     }
 }
