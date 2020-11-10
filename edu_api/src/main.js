@@ -7,7 +7,7 @@ import router from './router'
 import ElementUI from "element-ui"
 // 导入全局样式
 import "element-ui/lib/theme-chalk/index.css"
-
+import store from "./store"
 import "../static/css/global.css"
 import settings from "./settings";
 
@@ -24,11 +24,18 @@ Vue.use(ElementUI)
 
 Vue.config.productionTip = false
 
+require('video.js/dist/video-js.css');
+require('vue-video-player/src/custom-theme.css');
+import VideoPlayer from 'vue-video-player'
+
+Vue.use(VideoPlayer);
+
 
 /* eslint-disable no-new */
 new Vue({
     el: '#app',
     router,
     components: {App},
-    template: '<App/>'
+    template: '<App/>',
+    store
 })

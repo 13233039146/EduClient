@@ -34,8 +34,9 @@
                         <img :src="course.course_img" alt="">
                     </div>
                     <div class="course-info">
-                        <h3>{{ course.name }} <span><img src="/static/image/avatar1.svg" alt="">
-                           {{ course.students }}人已加入学习</span></h3>
+                        <h3> <router-link tag='h3' :to="'/detail/'+course.id">{{ course.name }}</router-link>
+                            <span><img src="/static/image/avatar1.svg"
+                                                                                                                alt="">{{ course.students }}人已加入学习</span></h3>
                         <p class="teather-info">huxz 百知教育教学总监
                             <span>共{{ course.lessons }}课时/{{
                                     course.lessons == course.pub_lessons ? '更新完成' : `已更新${course.pub_lessons}`
@@ -162,7 +163,6 @@ export default {
 
             // 如果是根据分类id查询(id为0是全部,id>0就是要根据id查询课程)
             if (this.cate_id > 0) {
-                console.log('id:------------------',this.cate_id);
                 filters.course_category = this.cate_id;
             }
             this.$axios.get(this.$settings.HOST + "course/lesson/",
