@@ -16,7 +16,7 @@
                 </div>
                 <div class="cart_course_list">
                     <CartItem v-for="(course,index) in cart_items" :key="index"
-                              :course="course"></CartItem>
+                              :course="course" @btn="delete_course(index)"  @re_get="get_car_list"></CartItem>
                 </div>
                 <div class="cart_footer_row">
                     <span class="cart_select"><label>
@@ -44,15 +44,15 @@ export default {
     data() {
         return {
             cart_items : [],
-            checked : false,
+            checked :    false,
         }
     },
     methods: {
-        // all_seleceted(){
-        //     for (let i=0; i<this.cart_items.length;i++){
-        //         this.cart_items[i].seleceted = ! this.cart_items[i].seleceted;
-        //     }
-        // },
+        delete_course(index){
+            this.cart_items.splice(index,1);
+            this.get_car_list();
+        },
+
         check_user_is_login() {
             let token = sessionStorage.token
             if (token) {
@@ -87,9 +87,6 @@ export default {
         }
     },
     created() {
-        this.get_car_list();
-    },
-    updated() {
         this.get_car_list();
     },
     components:{

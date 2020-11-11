@@ -23,7 +23,7 @@
                         <li class="price" @click="change_order_type('price')" :class="change_order_class('price')">价格
                         </li>
                     </ul>
-                    <p class="condition-result">共21个课程</p>
+                    <p class="condition-result">共{{course_list.length}}个课程</p>
                 </div>
 
             </div>
@@ -49,9 +49,9 @@
                                 <span class="free" v-if="lesson.free_trail">免费</span></li>
                         </ul>
                         <div class="pay-box">
-                            <span class="discount-type">限时免费</span>
-                            <span class="discount-price">￥0.00元</span>
-                            <span class="original-price">原价：{{ course.price }}元</span>
+                            <span class="discount-type" v-if="course.discount_name">{{ course.discount_name }}</span>
+                            <span class="discount-price" v-text="'￥'+ course.real_price + '元'"></span>
+                            <span class="original-price" v-text="'原价: ' + course.price + '元'"></span>
                             <span class="buy-now">立即购买</span>
                         </div>
                     </div>
